@@ -1,2 +1,2 @@
 # CTS-test
-CTS reseults
+CTS results
