@@ -84,6 +84,13 @@ if __name__ == "__main__":
     output_name = session.get_outputs()[0].name
 
     cap = cv2.VideoCapture(args.source)
+    
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    out = cv2.VideoWriter("cts_attack_video.mp4", fourcc, fps, (width, height))
 
     orig_counts = []
     attack_counts = []
@@ -104,6 +111,8 @@ if __name__ == "__main__":
         attacked_frame, attack_count = attack_frame(
             session, input_name, output_name, frame, args.tresh, args.iters, args.strength
         )
+        
+        out.write(attacked_frame)
 
         attack_count_check, attack_time = get_count_and_time(
             session, input_name, output_name, attacked_frame, args.tresh
@@ -126,6 +135,7 @@ if __name__ == "__main__":
         frame_id += 1
 
     cap.release()
+    out.release()
 
     print("\n===== CTS Batch Results =====")
     print("Frames tested:", len(orig_counts))
@@ -135,3 +145,4 @@ if __name__ == "__main__":
     print("Original avg inference ms:", np.mean(orig_times))
     print("Attack avg inference ms:", np.mean(attack_times))
     print("Saved example images: batch_original_frame0.jpg and batch_attack_frame0.jpg")
+    print("Saved attacked video: cts_attack_video.mp4")
